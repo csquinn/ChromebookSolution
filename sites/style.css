@@ -1,0 +1,50 @@
+/*
+sets body colors
+*/
+body{
+    background-color: #337ab7;
+    color: white;
+    margin: 0;
+}
+
+#page {
+    margin: auto; 
+    max-width: 1000px;
+	padding: 20px;
+    text-align: center;
+}
+
+a{
+    padding: 15px;
+    color: white;
+    display: inline-block;
+}
+
+a:link, a:visited, a:hover, a:focus, a:active {
+    color: white;
+}
+
+table {
+    text-align: center; 
+    margin: auto;
+}
+
+tr, td, th{
+    padding: 10px;
+}
+
+td.good {
+	background-color: green; 
+	color: black;
+}
+
+td.bad {
+	background-color: red; 
+	color: black;
+}
+
+div.assignment {
+	border: 2px solid white;
+	padding: 10px;
+	margin: 10px;
+}
