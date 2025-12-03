@@ -221,4 +221,95 @@ while (($line = fgets($handle2)) !== false) {
 	}
 }
 
+
+/*
+The following while loop iterates through the classrooms.csv file to determine what classrooms in the district have Chromebooks assigned as well as how many
+This is applicable for 4th grade and below classrooms where Chromebooks are not individually assigned
+The format of this csv is "classroom, numOfCBs"
+Functions the same way as the students lists, where there are individual arrays and also a master array
+Ideally, this list will be editable from the browser so that it can be changed by parties besides tech
+*/
+$filename = '../sources/classrooms.csv';
+$handle3 = fopen($filename, 'r');
+$Daytonclassrooms= [];
+$Eldertonclassrooms= [];
+$Shannockclassrooms= [];
+$Lenapeclassrooms= [];
+$Primaryclassrooms= [];
+$Intermediateclassrooms= [];
+$Armstrongclassrooms= [];
+$WSclassrooms= [];
+$Otherclassrooms= [];
+$Allclassrooms= [];
+
+if (!$handle3) {
+	die("Cannot open file: $filename");
+}
+
+while (($line = fgets($handle3)) !== false) {
+	$line = trim($line);      // Remove line breaks and spaces
+	if(!($line == "null" or $line == " " or $line == "" or $line == null)){
+		$temp = explode(',', $line);
+		switch(substr($temp[0], 0, 3)){ //looks at the first 3 characters of the name to determine location. Set to 3 instead of 2 because Primary is WHP instead of WP for some reason
+			case "DE":
+				$Daytonclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "EE ":
+				$Eldertonclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "SV ":
+				$Shannockclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "LE ":
+				$Lenapeclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "WHP":
+				$Primaryclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "WI ":
+				$Intermediateclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "AS ": //should likely never occur
+				$Armstrongclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			case "WS ": //should likely never occur
+				$WSclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+			default: //should likely never occur
+				$Otherclassrooms[] = array(
+					"room" => $temp[0],
+					"numOfCBs" => $temp[1]
+				);
+				break 1;
+		}
+		$Allclassrooms[] = array(
+			"room" => $temp[0],
+			"numOfCBs" => $temp[1]
+		);
+	}
+}
 ?>
