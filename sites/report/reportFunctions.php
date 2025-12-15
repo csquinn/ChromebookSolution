@@ -91,6 +91,7 @@ function findAssignments(){
 	global $classrooms; //list of all classrooms that have Chromebooks assigned, assigned at top of this file
 	global $exclusions; //list of all exclusions
 	global $exclusion; //determines whether or not the current Chromebook/student is excluded
+	global $gResult; //stores queried Chromebooks/Users to reduce API calls
 	
 
 	//Iterate through Skyward csv to find errors in Chromebook Assignments
@@ -118,42 +119,53 @@ function findAssignments(){
 			
 		} else { //assignments for 1 CB found
 			checkAssignedDeprovisioned($row, $student, $exclusion);
+			checkAssignedReadyToDeploy($row, $student, $exclusion);
+			checkAssignedWrongLocation($row, $student, $exclusion);
 		}
+		//free up variables
 		$result -> free_result();
 		$exclusion = [];
+		$gResult = 0;
 	}
 	
 	//Iterate through all classroom-assigned Chromebooks
 	foreach($classrooms as $classroom){ //through each classroom in the list
 		for($x = 0; $x < $classroom["numOfCBs"]; $x++){ //through each Chromebook in the classroom
 			$tempNum = (($x+1 < 10)?("0".$x+1):($x+1)); //if x < 10, append leading 0 to digit
-			$result = $mysqli -> query("select assets.serial, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where assets.asset_tag = '". $classroom["room"]."-".$tempNum ."' and assets.deleted_at is null;");
+			$result = $mysqli -> query("select assets.serial, assets.asset_tag, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where assets.asset_tag = '". $classroom["room"]."-".$tempNum ."' and assets.deleted_at is null;");
 			
 			//determine how many rows were in the response
 			$num_rows = $result -> num_rows;
 		
 			//convert MySQL output into associative array
 			$row = $result -> fetch_assoc();
-		
+			
 			//checks to see if the queried student is excluded
 			foreach($exclusions as $e){
 				if((($classroom["room"]."-".$tempNum) == $e['exclusion']) or (isset($row['serial']) and $row['serial'] == $e['exclusion'])){
 					$exclusion = $e;
 				}
 			}
-				
+
 			if($num_rows > 1){ //assignments for more than 1 CB with asset tag
 				//likely should not occur, as asset tags must be unique
 			} else if($num_rows == 0){ //assignments for no CB found
 				checkIfAssignedChromebook($classroom["room"]."-".$tempNum, $exclusion);
 			
 			} else { //assignments for 1 CB found
-			
+				checkClassroomDeprovisioned($row, $exclusion);
+				checkClassroomReadyToDeploy($row, $exclusion);
+				checkClassroomWrongLocation($row, $exclusion);
+				checkClassroomNoLocation($row, $exclusion);
 			}
-		$result -> free_result();
-		$exclusion = [];
+			//clear up variables
+			$result -> free_result();
+			$exclusion = [];
+			$gResult = 0;
 		}
 	}
+	
+	//finally, call displayAssignments to continue logic
 	displayAssignments();
 }
 
@@ -185,6 +197,24 @@ function displayAssignments(){
 			break 1;
 			case 'assignedDeprovisioned':
 				displayAssignedDeprovisioned($assignment);
+			break 1;
+			case 'assignedReadyToDeploy':
+				displayAssignedReadyToDeploy($assignment);
+			break 1;
+			case 'assignedWrongLocation':
+				displayAssignedWrongLocation($assignment);
+			break 1;
+			case 'classroomDeprovisioned':
+				displayClassroomDeprovisioned($assignment);
+			break 1;
+			case 'classroomReadyToDeploy':
+				displayClassroomReadyToDeploy($assignment);
+			break 1;
+			case 'classroomWrongLocation':
+				displayClassroomWrongLocation($assignment);
+			break 1;
+			case 'classroomNoLocation':
+				displayClassroomNoLocation($assignment);
 			break 1;
 		}
 

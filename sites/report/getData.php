@@ -1,4 +1,5 @@
 <?php
+require "../../vendor/autoload.php";
 /*
 These two lines read a txt file that stores the MySQL password for the snipe_user MySQL account
 This is used to query the MySQL database directly, rather than through SnipeIT
@@ -15,6 +16,13 @@ This is used to link to relevant records on SnipeIT that are referenced by Chrom
 $snipe_url = file_get_contents("../../user_variables/snipe_url.txt");
 $snipe_url = str_replace(array("\r", "\n"), '', $snipe_url);
 
+/*
+These two lines read a txt file that stores the email for a Google Admin
+This is used for admin impersonation in API calls
+*/
+$google_admin_email = file_get_contents("../../user_variables/google_admin_email.txt");
+$google_admin_email = str_replace(array("\r", "\n"), '', $google_admin_email);
+
 //Create mysqli connection
 $mysqli = new mysqli("localhost","snipe_user",$db_password,"snipeit");
 
@@ -23,6 +31,38 @@ if ($mysqli -> connect_errno) {
   echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
   exit();
 }
+
+/*
+The following block of code verifies that the Google Admin API is accessible.
+A variable is created that is intended to store either a truthy or falsy value representing whether or not the api is connected
+*/
+$client = new Google_Client();
+$client->setAuthConfig('../../user_variables/google-auth.json');
+$client->setScopes(['https://www.googleapis.com/auth/admin.directory.device.chromeos.readonly']);
+$client->setSubject($google_admin_email); // impersonate an admin
+
+$service = new Google_Service_Directory($client);
+
+try {
+	$response = $service->chromeosdevices->listChromeosdevices('my_customer', ['maxResults' => 1]);
+
+	$devices = $response->getChromeosdevices();
+
+	if (!empty($devices)) {
+		$apiConnection = true;
+	} else {
+		$apiConnection = false;
+	}
+} catch (Google_Service_Exception $e) {
+	$apiConnection = false;
+} catch (Exception $e) {
+	echo "General error: " . $e->getMessage() . PHP_EOL;
+}
+
+/*
+This variable will store a queried Chromebook or User from Google
+*/
+$gResult = 0;
 
 /*
 The following while loop iterates through a csv export from Skyward and reads it into various nested arrays.
@@ -136,7 +176,8 @@ while (($line = fgets($handle)) !== false) {
 						);//last name, first name, 99#, grade, location
 					break 1;
 				case "027": //WS
-					$location = array(
+					$location = 6;
+					$WSstudents[] = array(
 							"lastName" => $temp[3],
 							"firstName" => $temp[1], 
 							"id" => $temp[4], 
@@ -251,7 +292,7 @@ while (($line = fgets($handle3)) !== false) {
 	if(!($line == "null" or $line == " " or $line == "" or $line == null)){
 		$temp = explode(',', $line);
 		switch(substr($temp[0], 0, 3)){ //looks at the first 3 characters of the name to determine location. Set to 3 instead of 2 because Primary is WHP instead of WP for some reason
-			case "DE":
+			case "DE ":
 				$Daytonclassrooms[] = array(
 					"room" => $temp[0],
 					"numOfCBs" => $temp[1]

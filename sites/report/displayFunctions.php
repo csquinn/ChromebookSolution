@@ -89,14 +89,71 @@ function displayAssignedDeprovisioned($assignment){
 		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
 		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
 	}
-	echo "<h2>Student Assigned Deprovisioned Chromebook (ADD GOOGLE SUPPORT)</h2>";
+	echo "<h2>Student Assigned Deprovisioned Chromebook</h2>";
 	drawchromebookTable($display);
-	echo "<p>This student's Chromebook is marked as Deprovisioned in Snipe IT. <strong>ADD GADMIN CHECK HERE</strong></p>";
-	echo "<p>If this Chromebook is deprovisioned because it is broken, it should be unassigned from them in Snipe IT and proper replacement protocol should be followed.</p>";
+	echo "<p>This student's Chromebook is marked as Deprovisioned in Snipe IT.</p>";
+	if(isset($assignment['gAdminStatus'])){
+		echo "<p>This student's Chromebook is ".$assignment['gAdminStatus']." on Google Admin.</p>";
+	}
+	echo "<p>If this Chromebook is deprovisioned because it is broken, it should be unassigned from them in Snipe IT and proper replacement protocol should be followed <strong>REVIEW THIS</strong>.</p>";
 	echo "<p>If this Chromebook is not broken and it deprovisioned on accident, reenroll it and update it on Snipe IT.</p>";
 	echo "<p>If this Chromebook is not broken and not deprovisioned via Google Admin, mark it as Deployed on Snipe IT.</p>";
 }
 
+/*
+Displays the task that was created in checkAssignedReadyToDeploy
+type of task is assignedReadyToDeploy, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'assignedReadyToDeploy'
+*/
+function displayAssignedReadyToDeploy($assignment){
+	$display = array(
+		array('Student ID', 'First Name', 'Last Name', 'Grade', 'Serial Number', 'Status', 'Link'),
+		array($assignment['id'], "good"),
+		array($assignment['firstName'], "good"),
+		array($assignment['lastName'], "good"),
+		array($assignment['grade'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['statusName'], "bad"),
+		array($assignment['serial'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo '<h2>Student Assigned "Ready to Deploy" Chromebook</h2>';
+	drawchromebookTable($display);
+	echo "<p>This student's Chromebook is marked as Ready to Deploy in Snipe IT.</p>";
+	echo "<p>This is likely because the student's Chromebook was never marked as Deployed whenever it was assigned to them.</p>";
+	echo "<p>Ensure that this student possesses the Chromebook in question, then mark the Chromebook as Deployed in Snipe IT.</p>";
+}
+
+/*
+Displays the task that was created in checkAssignedWrongLocation
+type of task is assignedWrongLocation, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'assignedWrongLocation'
+*/
+function displayAssignedWrongLocation($assignment){
+	$display = array(
+		array('Student ID', 'First Name', 'Last Name', 'Grade', 'Serial Number', 'Location', 'Link'),
+		array($assignment['id'], "good"),
+		array($assignment['firstName'], "good"),
+		array($assignment['lastName'], "good"),
+		array($assignment['grade'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['locationName'], "bad"),
+		array($assignment['serial'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo '<h2>Student Chromebook Marked with Incorrect Location</h2>';
+	drawchromebookTable($display);
+	echo "<p>This student's Chromebook is not set to the proper school in Snipe IT.</p>";
+	echo "<p>This is likely because the student's Chromebook's location was not updated when they transitioned from 6th-7th grade, or because it wasn't updated when the student's Chromebook was assigned.</p>";
+	echo "<p>Ensure that this student possesses the Chromebook in question, then update the Chromebook's location in Snipe IT.</p>";
+	echo "<p><strong>If the location of the Chromebook doesn't look like it updated in Snipe IT, do not worry. Check again tommorow and it should've synced.</strong></p>";
+}
 /*
 Displays the task that was created in checkIfAssignedChromebook
 type of task is noClassroomCB, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'noClassroomCB'
@@ -118,5 +175,111 @@ function displayIfAssignedChromebook($assignment){
 	echo "<p>This Chromebook was not found in Snipe IT when searching by Asset Tag. This could be because the Chromebook was removed from the classroom and not replaced, or a record keeping error on Snipe IT.</p>";
 	echo "<p>If this Chromebook is not in the classroom, please make sure it is accounted for. TEMP REPLACE ME</p>";
 	echo "<p>If this Chromebook is present in the classroom, check its asset tag (by searching via serial number) to ensure that there are no typos in the asset tag.</p>";
+}
+
+/*
+Displays the task that was created in checkClassroomDeprovisioned()
+type of task is classroomDeprovisioned, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'classroomDeprovisioned'
+*/
+function displayClassroomDeprovisioned($assignment){
+	$display = array(
+		array('Asset Tag', 'Serial Number', 'Location', 'Status', 'Link'),
+		array($assignment['assetTag'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['locationName'], "good"),
+		array($assignment['statusName'], "bad"),
+		array($assignment['assetTag'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo "<h2>Classroom Chromebook is Marked as Deprovisioned</h2>";
+	drawchromebookTable($display);
+	echo "<p>This Chromebook is marked as Deprovisioned on Snipe IT.</p>";
+	if(isset($assignment['gAdminStatus'])){
+		echo "<p>This student's Chromebook is ".$assignment['gAdminStatus']." on Google Admin.</p>";
+	}
+	echo "<p>If this Chromebook is deprovisioned because it is broken, it follow proper replacement protocol <strong>REVIEW THIS</strong>.</p>";
+	echo "<p>If this Chromebook is not broken and it deprovisioned on accident, reenroll it and update it on Snipe IT.</p>";
+	echo "<p>If this Chromebook is not broken and not deprovisioned via Google Admin, mark it as Deployed on Snipe IT.</p>";
+}
+
+/*
+Displays the task that was created in checkClassroomReadyToDeploy()
+type of task is classroomReadyToDeploy, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'classroomReadyToDeploy'
+*/
+function displayClassroomReadyToDeploy($assignment){
+	$display = array(
+		array('Asset Tag', 'Serial Number', 'Location', 'Status', 'Link'),
+		array($assignment['assetTag'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['locationName'], "good"),
+		array($assignment['statusName'], "bad"),
+		array($assignment['assetTag'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo "<h2>Classroom Chromebook is Marked as Ready to Deploy</h2>";
+	drawchromebookTable($display);
+	echo "<p>This Chromebook is marked as Ready to Deploy on Snipe IT.</p>";
+	echo "<p>This is likely because the Chromebook was never marked as Deployed whenever it was placed in the classroom.</p>";
+	echo "<p>Ensure the Chromebook is present and undamaged in the classroom, then mark the Chromebook as Deployed in Snipe IT.</p>";
+}
+
+/*
+Displays the task that was created in checkClassroomWrongLocation()
+type of task is classroomWrongLocation, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'classroomWrongLocation'
+*/
+function displayClassroomWrongLocation($assignment){
+	$display = array(
+		array('Asset Tag', 'Serial Number', 'Status', 'Location', 'Link'),
+		array($assignment['assetTag'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['statusName'], "good"),
+		array($assignment['locationName'], "bad"),
+		array($assignment['assetTag'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo "<h2>Classroom Chromebook is Marked with Wrong Location</h2>";
+	drawchromebookTable($display);
+	echo "<p>This Chromebook is marked with the wrong location in Snipe IT.</p>";
+	echo "<p>This is likely because the Chromebook's location was never updated when it was moved.</p>";
+	echo "<p>Ensure the Chromebook is present and undamaged in the classroom, then update the location in Snipe IT.</p>";
+	echo "<p><strong>If the location of the Chromebook doesn't look like it updated in Snipe IT, do not worry. Check again tommorow and it should've synced.</strong></p>";
+}
+
+/*
+Displays the task that was created in checkClassroomNoLocation()
+type of task is classroomNoLocation, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'classroomNoLocation'
+*/
+function displayClassroomNoLocation($assignment){
+	$display = array(
+		array('Asset Tag', 'Serial Number', 'Status', 'Location', 'Link'),
+		array($assignment['assetTag'], "good"),
+		array($assignment['serial'], "good"),
+		array($assignment['statusName'], "good"),
+		array("No Location Set", "bad"),
+		array($assignment['assetTag'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo "<h2>Classroom Chromebook has No Location Set</h2>";
+	drawchromebookTable($display);
+	echo "<p>This Chromebook has no location in Snipe IT.</p>";
+	echo "<p>This is likely because the Chromebook's location was not properly updated when it was moved.</p>";
+	echo "<p>Ensure the Chromebook is present and undamaged in the classroom, then update the location in Snipe IT.</p>";
+	echo "<p><strong>If the location of the Chromebook doesn't look like it updated in Snipe IT, do not worry. Check again tommorow and it should've synced.</strong></p>";
 }
 ?>

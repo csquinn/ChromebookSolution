@@ -74,40 +74,8 @@ if (file_exists($csvFile) && ($handle = fopen($csvFile, 'r')) !== false) {
 	<link rel = "stylesheet" href = "../style.css">
 </head>
 <body>
-
-<?php if (!empty($rows)): ?>
-<table>
-	<tr>
-		<?php foreach ($rows[0] as $header): ?>
-			<th><?= htmlspecialchars($header) ?></th>
-		<?php endforeach; ?>
-	</tr>
-
-	<?php foreach ($rows as $index => $row): ?>
-		<?php if ($index === 0) continue; ?>
-		<tr>
-			<?php foreach ($row as $cell): ?>
-				<td><?= htmlspecialchars($cell) ?></td>
-			<?php endforeach; ?>
-			<td>
-				<form method="post" class="inline">
-				<input type='hidden' name='school' value=<?php echo $_GET['school']; ?>>
-				<input type="hidden" name="delete" value="<?= $index ?>">
-				<button type="submit" onclick="return confirm('Delete this exclusion?')">
-					Delete
-					</button>
-				</form>
-			</td>
-		</tr>
-	<?php endforeach; ?>
-</table>
-<?php else: ?>
-	<p>No data found.</p>
-<?php endif; ?>
-
-<hr>
-
-<h2>Add New Row</h2>
+<div id="page">
+<h2>Add New Exclusion</h2>
 
 <form method="post">
 	<input type="hidden" name="add" value="1">
@@ -129,6 +97,42 @@ if (file_exists($csvFile) && ($handle = fopen($csvFile, 'r')) !== false) {
 
 	<button type="submit">Add</button>
 </form>
+
+<hr>
+<h2>Current Exclusions</h2>
+<?php if (!empty($rows)): ?>
+<table>
+	<tr>
+		<?php foreach ($rows[0] as $header): ?>
+			<th><?= htmlspecialchars($header) ?></th>
+		<?php endforeach; ?>
+	</tr>
+
+	<?php foreach ($rows as $index => $row): ?>
+		<?php if ($index === 0) continue; ?>
+		<tr>
+			<?php foreach ($row as $cell): ?>
+				<td><?php if($cell == "perm"){echo "Yes";}else if($cell =="nonperm"){echo "No";}else{echo htmlspecialchars($cell);} ?></td>
+			<?php endforeach; ?>
+			<td>
+				<form method="post" class="inline">
+				<input type='hidden' name='school' value=<?php echo $_GET['school']; ?>>
+				<input type="hidden" name="delete" value="<?= $index ?>">
+				<button type="submit" onclick="return confirm('Delete this exclusion?')">
+					Delete
+					</button>
+				</form>
+			</td>
+		</tr>
+	<?php endforeach; ?>
+</table>
+<?php else: ?>
+	<p>No data found.</p>
+<?php endif; ?>
+
+<hr>
+
+</div>
 
 </body>
 </html>
