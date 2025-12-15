@@ -314,12 +314,12 @@ while (($line = fgets($handle3)) !== false) {
 }
 
 /*
-The following code reads in exclusions from exclusions.txt
+The following code reads in exclusions from exclusions.csv
 These records will be used when known assignments want to be excluded from the list of assignments.
 This list of exclusions is generated from addExclusions.txt
 Like the students and classrooms, exclusions are divided by schools
 */
-$filename = 'exclusions.txt';
+$filename = 'exclusions.csv';
 $handle4 = fopen($filename, 'r');
 $Daytonexclusions= [];
 $Eldertonexclusions= [];
@@ -336,11 +336,14 @@ if (!$handle4) {
 	die("Cannot open file: $filename");
 }
 
+fgets($handle4); //skips header line in csv export
+
 while (($line = fgets($handle4)) !== false) {
 	$line = trim($line);      // Remove line breaks and spaces
+	$line = str_replace('"', '', $line);	//Remove all quotes (if present)
 	if(!($line == "null" or $line == " " or $line == "" or $line == null)){
 		$temp = explode(',', $line);
-		switch($temp[4]){ //looks at the first 3 characters of the name to determine location. Set to 3 instead of 2 because Primary is WHP instead of WP for some reason
+		switch($temp[4]){ //looks at the 5th element of each line in the csv which is the building code
 			case "DE":
 				$Daytonexclusions[] = array(
 					"exclusion" => $temp[0],

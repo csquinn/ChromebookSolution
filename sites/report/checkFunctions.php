@@ -36,9 +36,9 @@ TODO - Add Google Admin support
 
 If the the student's Chromebook's statusName = "Deprovisioned", make a task
 */
-function checkAssignedDeprovisioned($result, $student, $exclusion){
+function checkAssignedDeprovisioned($row, $student, $exclusion){
 	global $allAssignments;
-	$row = $result -> fetch_assoc(); //convert MySQL output into associative array
+	
 	if($row['statusName'] == "Deprovisioned"){
 		$allAssignments[] = array(
 			"type" => "assignedDeprovisioned",

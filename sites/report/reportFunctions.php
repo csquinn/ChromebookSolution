@@ -98,21 +98,26 @@ function findAssignments(){
 		//queries the inventory database
 		$result = $mysqli -> query("select assets.serial, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join users on assets.assigned_to = users.id inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where users.username = '". $student['id'] ."' and assets.deleted_at is null;");
 		
+		//determine how many rows were in the response
+		$num_rows = $result -> num_rows;
+		
+		//convert MySQL output into associative array
+		$row = $result -> fetch_assoc();
+		
 		//checks to see if the queried student is excluded
 		foreach($exclusions as $e) {
-			if(($student['id'] == $e['exclusion'])){
+			if(($student['id'] == $e['exclusion']) or (isset($row['serial']) and $row['serial'] == $e['exclusion'])){
 				$exclusion = $e;
-				echo "agin";
 			}
 		}
 		
-		if($result -> num_rows > 1){ //assignments for more than 1 CB per student
+		if($num_rows > 1){ //assignments for more than 1 CB per student
 			
-		} else if($result -> num_rows == 0){ //assignments for no CB found
+		} else if($num_rows == 0){ //assignments for no CB found
 			checkHasAssignedStudent($student, $exclusion);
 			
 		} else { //assignments for 1 CB found
-			checkAssignedDeprovisioned($result, $student, $exclusion);
+			checkAssignedDeprovisioned($row, $student, $exclusion);
 		}
 		$result -> free_result();
 		$exclusion = [];
@@ -124,16 +129,22 @@ function findAssignments(){
 			$tempNum = (($x+1 < 10)?("0".$x+1):($x+1)); //if x < 10, append leading 0 to digit
 			$result = $mysqli -> query("select assets.serial, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where assets.asset_tag = '". $classroom["room"]."-".$tempNum ."' and assets.deleted_at is null;");
 			
+			//determine how many rows were in the response
+			$num_rows = $result -> num_rows;
+		
+			//convert MySQL output into associative array
+			$row = $result -> fetch_assoc();
+		
 			//checks to see if the queried student is excluded
 			foreach($exclusions as $e){
-				if((($classroom["room"]."-".$tempNum) == $e['exclusion'])){
+				if((($classroom["room"]."-".$tempNum) == $e['exclusion']) or (isset($row['serial']) and $row['serial'] == $e['exclusion'])){
 					$exclusion = $e;
 				}
 			}
 				
-			if($result -> num_rows > 1){ //assignments for more than 1 CB with asset tag
+			if($num_rows > 1){ //assignments for more than 1 CB with asset tag
 				//likely should not occur, as asset tags must be unique
-			} else if($result -> num_rows == 0){ //assignments for no CB found
+			} else if($num_rows == 0){ //assignments for no CB found
 				checkIfAssignedChromebook($classroom["room"]."-".$tempNum, $exclusion);
 			
 			} else { //assignments for 1 CB found
@@ -158,8 +169,12 @@ function displayAssignments(){
 	$priorityCol = array_column($allAssignments, "priority");
 	array_multisort($priorityCol, SORT_DESC, $allAssignments);
 
+	//prints out amount of assignments
+	echo"<h3>".count(array_filter($allAssignments, fn($item) => $item['priority'] != -1))." Tasks Remaining</h3>";
 	
 	foreach($allAssignments as $assignment){
+		echo "<details open>";
+		echo "<summary>Task #".(array_search($assignment, $allAssignments)+1)."</summary>";
 		echo "<div class='assignment'>";
 		switch ($assignment['type']) {
 			case 'noAssigned':
@@ -174,6 +189,7 @@ function displayAssignments(){
 		}
 
 		echo "</div>";
+		echo"</details>";
 	}
 	
 

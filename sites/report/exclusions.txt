@@ -1,3 +1,0 @@
-WI 2040-01,Test Asset tag 2,nonperm,12-11-2025,WI
-WI 2040-05,Test Asset tag,perm,12-11-2025,WI
-993228170,Test Student,nonperm,12-11-2025,WI
