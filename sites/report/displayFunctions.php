@@ -154,6 +154,34 @@ function displayAssignedWrongLocation($assignment){
 	echo "<p>Ensure that this student possesses the Chromebook in question, then update the Chromebook's location in Snipe IT.</p>";
 	echo "<p><strong>If the location of the Chromebook doesn't look like it updated in Snipe IT, do not worry. Check again tommorow and it should've synced.</strong></p>";
 }
+
+/*
+Displays the task that was created in checkAssignedNoLocation
+type of task is assignedNoLocation, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'assignedNoLocation'
+*/
+function displayAssignedNoLocation($assignment){
+	$display = array(
+		array('Student ID', 'First Name', 'Last Name', 'Grade', 'Serial Number', 'Location', 'Link'),
+		array($assignment['id'], "good"),
+		array($assignment['firstName'], "good"),
+		array($assignment['lastName'], "good"),
+		array($assignment['grade'], "good"),
+		array($assignment['serial'], "good"),
+		array("No Location Set", "bad"),
+		array($assignment['serial'], "hardware")
+	);
+	if($assignment['priority'] == -1){ //if excluded assignment, display extra info
+		echo "<h3 class='exclusion'>This Assignment is Excluded</h3>";
+		echo "<p class='exclusion'>Reason: ".$assignment['exclusionReason']."</p>";
+		echo "<p class='exclusion'>Date Excluded: ".$assignment['exclusionDate']."</p>";
+	}
+	echo '<h2>Student Chromebook has No Location Set</h2>';
+	drawchromebookTable($display);
+	echo "<p>This Chromebook has no location in Snipe IT.</p>";
+	echo "<p>This is likely because the Chromebook's location was not properly updated when it was moved.</p>";
+	echo "<p>Ensure the student possesses the undamaged Chromebook, then update the location in Snipe IT.</p>";
+	echo "<p><strong>If the location of the Chromebook doesn't look like it updated in Snipe IT, do not worry. Check again tommorow and it should've synced.</strong></p>";
+}
 /*
 Displays the task that was created in checkIfAssignedChromebook
 type of task is noClassroomCB, so this runs in reportFunctions.php's displayAssignments function when the switch statement hits 'noClassroomCB'

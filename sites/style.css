@@ -57,4 +57,11 @@ div.assignment {
 	margin: 10px;
 }
 
+a.pipeline:link, a.pipeline:visited, a.pipeline:hover, a.pipeline:focus, a.pipeline:active {
+	color: white;
+	padding: 10px;
+	margin: 10px;
+	border: 2px solid white;
+}
+
 

@@ -97,7 +97,7 @@ function findAssignments(){
 	//Iterate through Skyward csv to find errors in Chromebook Assignments
 	foreach($students as $student){
 		//queries the inventory database
-		$result = $mysqli -> query("select assets.serial, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join users on assets.assigned_to = users.id inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where users.username = '". $student['id'] ."' and assets.deleted_at is null;");
+		$result = $mysqli -> query("select assets.serial, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join users on assets.assigned_to = users.id inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id left join locations on assets.rtd_location_id = locations.id where users.username = '". $student['id'] ."' and assets.deleted_at is null;");
 		
 		//determine how many rows were in the response
 		$num_rows = $result -> num_rows;
@@ -121,6 +121,7 @@ function findAssignments(){
 			checkAssignedDeprovisioned($row, $student, $exclusion);
 			checkAssignedReadyToDeploy($row, $student, $exclusion);
 			checkAssignedWrongLocation($row, $student, $exclusion);
+			checkAssignedNoLocation($row, $student, $exclusion);
 		}
 		//free up variables
 		$result -> free_result();
@@ -132,7 +133,7 @@ function findAssignments(){
 	foreach($classrooms as $classroom){ //through each classroom in the list
 		for($x = 0; $x < $classroom["numOfCBs"]; $x++){ //through each Chromebook in the classroom
 			$tempNum = (($x+1 < 10)?("0".$x+1):($x+1)); //if x < 10, append leading 0 to digit
-			$result = $mysqli -> query("select assets.serial, assets.asset_tag, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id inner join locations on assets.rtd_location_id = locations.id where assets.asset_tag = '". $classroom["room"]."-".$tempNum ."' and assets.deleted_at is null;");
+			$result = $mysqli -> query("select assets.serial, assets.asset_tag, assets.rtd_location_id, assets.status_id, models.name as modelName, locations.name as locationName, status_labels.name as statusName from assets inner join models on assets.model_id = models.id inner join status_labels on assets.status_id = status_labels.id left join locations on assets.rtd_location_id = locations.id where assets.asset_tag = '". $classroom["room"]."-".$tempNum ."' and assets.deleted_at is null;");
 			
 			//determine how many rows were in the response
 			$num_rows = $result -> num_rows;
@@ -203,6 +204,9 @@ function displayAssignments(){
 			break 1;
 			case 'assignedWrongLocation':
 				displayAssignedWrongLocation($assignment);
+			break 1;
+			case 'assignedNoLocation':
+				displayAssignedNoLocation($assignment);
 			break 1;
 			case 'classroomDeprovisioned':
 				displayClassroomDeprovisioned($assignment);

@@ -169,6 +169,34 @@ function checkAssignedWrongLocation($row, $student, $exclusion){
 }
 
 /*
+Checks if a Chromebook assigned to a student has no location in Snipe IT
+Priority 3
+
+If the the student's Chromebook's rtd_location_id is null, create a task
+*/
+function checkAssignedNoLocation($row, $student, $exclusion){
+	global $allAssignments;
+	
+	if($row['rtd_location_id'] == false or $row['rtd_location_id'] == '' or $row['rtd_location_id'] == 0){//if location is not set
+		$allAssignments[] = array(
+			"type" => "assignedNoLocation",
+			"id" => $student['id'],
+			"firstName" => $student['firstName'],
+			"lastName" => $student['lastName'],
+			"grade" => $student['grade'],
+			"serial" => $row['serial'],
+			"priority" => 3
+		);
+		if($exclusion != []){ //add extra data if this assignment is excluded
+			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+			$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+			$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+		}
+	}
+	
+}
+
+/*
 Checks to make sure that a Chromebook assigned to a room exists in Snipe it
 Priority 5
 
@@ -318,12 +346,10 @@ function checkClassroomWrongLocation($row, $exclusion){
 }
 
 /*
-NOT WORKING CURRENTLY
-Checks if a Chromebook assigned to a classroom has the correct location in Snipe IT
-Is done stupidly here because I need to translate Snipe IT's rtd_location_id into the school codes
+Checks if a Chromebook assigned to a classroom has no location in Snipe IT
 Priority 3
 
-If the the student's Chromebook's rtd_location_id is not null and does not equal the proper value, create a task
+If the the Chromebook's rtd_location_id is null, create a task
 */
 function checkClassroomNoLocation($row, $exclusion){
 	global $allAssignments;
