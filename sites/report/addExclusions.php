@@ -114,15 +114,19 @@ if (file_exists($csvFile) && ($handle = fopen($csvFile, 'r')) !== false) {
 			<?php foreach ($row as $cell): ?>
 				<td><?php if($cell == "perm"){echo "Yes";}else if($cell =="nonperm"){echo "No";}else{echo htmlspecialchars($cell);} ?></td>
 			<?php endforeach; ?>
-			<td>
-				<form method="post" class="inline">
-				<input type='hidden' name='school' value=<?php echo $_GET['school']; ?>>
-				<input type="hidden" name="delete" value="<?= $index ?>">
-				<button type="submit" onclick="return confirm('Delete this exclusion?')">
-					Delete
-					</button>
-				</form>
-			</td>
+			<?php
+			if($_GET['school'] == $row[4]){
+			echo "<td>";
+				echo '<form method="post" class="inline">';
+				echo "<input type='hidden' name='school' value='".$_GET['school']."'>";
+				echo '<input type="hidden" name="delete" value="'.$index.'">';
+				echo '<button type="submit" onclick="return">';
+				echo '	Delete';
+				echo '	</button>';
+			echo '	</form>';
+			echo '</td>';
+			}
+			?>
 		</tr>
 	<?php endforeach; ?>
 </table>
@@ -131,7 +135,7 @@ if (file_exists($csvFile) && ($handle = fopen($csvFile, 'r')) !== false) {
 <?php endif; ?>
 
 <hr>
-
+<a href="/index.php">Return Home</a>
 </div>
 
 </body>

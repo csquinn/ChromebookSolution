@@ -64,4 +64,8 @@ a.pipeline:link, a.pipeline:visited, a.pipeline:hover, a.pipeline:focus, a.pipel
 	border: 2px solid white;
 }
 
+h3.warning {
+	color: red;
+}
+
 

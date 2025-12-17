@@ -17,12 +17,12 @@ Finally, $results[-1] is always going to be used to create a link to Snipe IT
 $results[-1][0] is the string that will be put into the Link
 $results[-1][1] tells whether a Chromebook or a Snipe IT User is being searched for (either "users" or "hardware")
 */
-function drawChromebookTable($results){
+function drawChromebookTable($display){
 	global $snipe_url;
 	
 	echo "<table border='1'>";
 	$counter = 0;
-	foreach($results as $row){
+	foreach($display as $row){
 		if($counter == 0){//draw header row
 			echo "<tr>";
 			foreach($row as $header){
@@ -30,11 +30,11 @@ function drawChromebookTable($results){
 			}
 			echo "</tr>";
 			echo "<tr>";
-		} else if($counter != count($results) - 1) {//draw link to Snipe IT
+		} else if($counter != count($display) - 1) {//draw link to Snipe IT
 			echo "<td class = '". $row[1] ."'>";
 			echo $row[0];
 			echo "</td>";
-		} else if ($counter == count($results) - 1) {//everything else
+		} else if ($counter == count($display) - 1) {//everything else
 			echo "<td><a href='" . $snipe_url . "/".$row[1]."?page=1&size=20&search=" . $row[0] . "' target = '_blank'>Link</a></td>";
 			echo "</tr>";
 		}
