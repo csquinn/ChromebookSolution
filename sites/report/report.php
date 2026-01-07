@@ -13,9 +13,7 @@
 
 <div id = "page">
 
-<h1>Example Title</h1>
-
-<h2>Example Body Text</h2>
+<h1>Inventory Record-Keeping Issues</h1>
 
 
 <?php findAssignments(); ?>
