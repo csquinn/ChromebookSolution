@@ -38,6 +38,29 @@ function getGAdminChromebook($serial){
 	$gResult = $devices[0];
 }
 /*
+Checks to make sure student doesn't have more than one Chromebook assigned to them in Snipe IT
+Because this is only called when multiple Chromebooks are already found, this function doesn't need any logic
+Priority 5
+
+If a mysql query for a student's 99# returns multiple rows (meaning multiple Chromebooks found), create a task
+*/
+function checkAssignedMultiple($student, $exclusion){
+	global $allAssignments;
+	$allAssignments[] = array(
+		"type" => "multipleAssigned",
+		"id" => $student['id'],
+		"firstName" => $student['firstName'],
+		"lastName" => $student['lastName'],
+		"grade" => $student['grade'],
+		"priority" => 5
+	);
+	if($exclusion != []){ //add extra data if this assignment is excluded
+		$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+		$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+		$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+	}
+}
+/*
 Checks to make sure student has a Chromebook assigned to them in Snipe IT
 Priority 5
 
@@ -112,7 +135,7 @@ function checkAssignedDeprovisioned($row, $student, $exclusion){
 
 /*
 Checks if the Chromebook assigned to a student is marked "Ready to Deploy" instead of Deployed in Snipe It
-Priority 3
+Priority 2
 
 If the the student's Chromebook's statusName = "Ready to Deploy", make a task
 */
@@ -128,7 +151,65 @@ function checkAssignedReadyToDeploy($row, $student, $exclusion){
 			"grade" => $student['grade'],
 			"serial" => $row['serial'],
 			"statusName" => $row['statusName'],
+			"priority" => 2
+		);
+		if($exclusion != []){ //add extra data if this assignment is excluded
+			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+			$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+			$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+		}
+	}
+	
+}
+
+/*
+Checks if the Chromebook assigned to a student is marked "Broken" instead of Deployed in Snipe It
+Priority 3
+
+If the the student's Chromebook's statusName = "Broken", make a task
+*/
+function checkAssignedBroken($row, $student, $exclusion){
+	global $allAssignments;
+	
+	if($row['statusName'] == "Broken"){//if Broken in inventory
+		$allAssignments[] = array(
+			"type" => "assignedBroken",
+			"id" => $student['id'],
+			"firstName" => $student['firstName'],
+			"lastName" => $student['lastName'],
+			"grade" => $student['grade'],
+			"serial" => $row['serial'],
+			"statusName" => $row['statusName'],
 			"priority" => 3
+		);
+		if($exclusion != []){ //add extra data if this assignment is excluded
+			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+			$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+			$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+		}
+	}
+	
+}
+
+/*
+Checks if the Chromebook assigned to a student is marked "Out for Repair" instead of Deployed in Snipe It
+Priority 4
+
+If the the student's Chromebook's statusName = "Out for Repair", make a task
+*/
+function checkAssignedOutForRepair($row, $student, $exclusion){
+	global $allAssignments;
+	
+	if($row['statusName'] == "Out for Repair"){//if Out for Repair in inventory
+		$allAssignments[] = array(
+			"type" => "assignedOutForRepair",
+			"id" => $student['id'],
+			"firstName" => $student['firstName'],
+			"lastName" => $student['lastName'],
+			"grade" => $student['grade'],
+			"serial" => $row['serial'],
+			"statusName" => $row['statusName'],
+			"priority" => 4
 		);
 		if($exclusion != []){ //add extra data if this assignment is excluded
 			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
@@ -263,7 +344,7 @@ function checkClassroomDeprovisioned($row, $exclusion){
 
 /*
 Checks if a Chromebook assigned to a classroom is marked as Ready to Deploy on Snipe IT
-Priority 3
+Priority 2
 
 If the the student's Chromebook's statusName = "Ready to Deploy", make a task
 */
@@ -277,7 +358,59 @@ function checkClassroomReadyToDeploy($row, $exclusion){
 			"serial" => $row['serial'],
 			"locationName" => $row['locationName'],
 			"statusName" => $row['statusName'],
+			"priority" => 2
+		);
+		if($exclusion != []){ //add extra data if this assignment is excluded
+			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+			$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+			$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+		}
+	}
+}
+
+/*
+Checks if a Chromebook assigned to a classroom is marked as Broken on Snipe IT
+Priority 3
+
+If the the student's Chromebook's statusName = "Broken", make a task
+*/
+function checkClassroomBroken($row, $exclusion){
+	global $allAssignments;
+	
+	if($row['statusName'] == "Broken"){//if ready to deploy in inventory
+		$allAssignments[] = array(
+			"type" => "classroomBroken",
+			"assetTag" => $row['asset_tag'],
+			"serial" => $row['serial'],
+			"locationName" => $row['locationName'],
+			"statusName" => $row['statusName'],
 			"priority" => 3
+		);
+		if($exclusion != []){ //add extra data if this assignment is excluded
+			$allAssignments[count($allAssignments) - 1]['priority'] = -1;
+			$allAssignments[count($allAssignments) - 1]['exclusionReason'] = $exclusion['reason'];
+			$allAssignments[count($allAssignments) - 1]['exclusionDate'] = $exclusion['date'];
+		}
+	}
+}
+
+/*
+Checks if a Chromebook assigned to a classroom is marked as Out for Repair on Snipe IT
+Priority 4
+
+If the the student's Chromebook's statusName = "Out for Repair", make a task
+*/
+function checkClassroomOutForRepair($row, $exclusion){
+	global $allAssignments;
+	
+	if($row['statusName'] == "Out for Repair"){//if ready to deploy in inventory
+		$allAssignments[] = array(
+			"type" => "classroomOutForRepair",
+			"assetTag" => $row['asset_tag'],
+			"serial" => $row['serial'],
+			"locationName" => $row['locationName'],
+			"statusName" => $row['statusName'],
+			"priority" => 2
 		);
 		if($exclusion != []){ //add extra data if this assignment is excluded
 			$allAssignments[count($allAssignments) - 1]['priority'] = -1;

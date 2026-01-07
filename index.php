@@ -30,6 +30,8 @@ if (file_exists($file)) {
 <h2><a href="/sites/startpipeline.html">Address a Specific Chromebook</a></h2>
 <br>
 <h2><a href="/sites/prereport.html">Perform Routine Chromebook Maintenance</a></h2>
+<br>
+<h2><a href="/sites/startknowledgebase.html">View the Chromebook Management Knowledge Base</a></h2>
 
 
 </div>

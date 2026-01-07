@@ -113,6 +113,7 @@ function findAssignments(){
 		}
 		
 		if($num_rows > 1){ //assignments for more than 1 CB per student
+			checkAssignedMultiple($student, $exclusion);
 			
 		} else if($num_rows == 0){ //assignments for no CB found
 			checkHasAssignedStudent($student, $exclusion);
@@ -120,6 +121,8 @@ function findAssignments(){
 		} else { //assignments for 1 CB found
 			checkAssignedDeprovisioned($row, $student, $exclusion);
 			checkAssignedReadyToDeploy($row, $student, $exclusion);
+			checkAssignedBroken($row, $student, $exclusion);
+			checkAssignedOutForRepair($row, $student, $exclusion);
 			checkAssignedWrongLocation($row, $student, $exclusion);
 			checkAssignedNoLocation($row, $student, $exclusion);
 		}
@@ -156,6 +159,8 @@ function findAssignments(){
 			} else { //assignments for 1 CB found
 				checkClassroomDeprovisioned($row, $exclusion);
 				checkClassroomReadyToDeploy($row, $exclusion);
+				checkClassroomBroken($row, $exclusion);
+				checkClassroomOutForRepair($row, $exclusion);
 				checkClassroomWrongLocation($row, $exclusion);
 				checkClassroomNoLocation($row, $exclusion);
 			}
@@ -165,6 +170,8 @@ function findAssignments(){
 			$gResult = 0;
 		}
 	}
+	
+	//TODO iterate through assigned CBS for people not on Skyward CSV
 	
 	//finally, call displayAssignments to continue logic
 	displayAssignments();
@@ -190,6 +197,9 @@ function displayAssignments(){
 		echo "<summary>Task #".(array_search($assignment, $allAssignments)+1)."</summary>";
 		echo "<div class='assignment'>";
 		switch ($assignment['type']) {
+			case 'multipleAssigned':
+				displayMultipleAssigned($assignment);
+			break 1;
 			case 'noAssigned':
 				displayHasAssignedStudent($assignment);
 			break 1;
@@ -202,6 +212,12 @@ function displayAssignments(){
 			case 'assignedReadyToDeploy':
 				displayAssignedReadyToDeploy($assignment);
 			break 1;
+			case 'assignedBroken':
+				displayAssignedBroken($assignment);
+			break 1;
+			case 'assignedOutForRepair':
+				displayAssignedOutForRepair($assignment);
+			break 1;
 			case 'assignedWrongLocation':
 				displayAssignedWrongLocation($assignment);
 			break 1;
@@ -213,6 +229,12 @@ function displayAssignments(){
 			break 1;
 			case 'classroomReadyToDeploy':
 				displayClassroomReadyToDeploy($assignment);
+			break 1;
+			case 'classroomBroken':
+				displayClassroomBroken($assignment);
+			break 1;
+			case 'classroomOutForRepair':
+				displayClassroomOutForRepair($assignment);
 			break 1;
 			case 'classroomWrongLocation':
 				displayClassroomWrongLocation($assignment);
